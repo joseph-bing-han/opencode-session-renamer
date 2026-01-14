@@ -1,0 +1,41 @@
+{
+  "name": "opencode-session-renamer",
+  "version": "1.0.0",
+  "description": "Auto-rename opencode sessions based on conversation content",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "session-renamer.example.jsonc"
+  ],
+  "keywords": [
+    "opencode",
+    "plugin",
+    "session",
+    "rename",
+    "ai"
+  ],
+  "author": "Joseph Han",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/joseph-bing-han/opencode-session-renamer"
+  },
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target bun && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "dev": "bun run --watch src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "bun run build"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "latest"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@opencode-ai/plugin": "*"
+  }
+}

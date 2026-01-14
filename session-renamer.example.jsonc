@@ -1,0 +1,16 @@
+{
+  // 用于生成标题的 LLM 模型，格式： "providerID/modelID"；留空表示使用服务端默认模型
+  "model": "opencode/grok-code",
+
+  // 标题最大长度（不含日期后缀）
+  "titleMaxLength": 20,
+
+  // 日期格式：YY=年，MM=月，DD=日，HH=小时，mm=分钟
+  "dateFormat": "YY-MM-DD HH:mm",
+
+  // 触发重命名的最小消息长度
+  "minMessageLength": 5,
+
+  // 是否开启调试日志
+  "debug": false
+}
