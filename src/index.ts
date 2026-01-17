@@ -16,9 +16,15 @@ Examples:
 - User: "Please optimize this React component's performance" -> "Optimize React component performance"`;
 
 const renamedSessions = new Set<string>();
+const lockedSessions = new Set<string>();
 const tempSessions = new Set<string>();
 
+const DEFAULT_TITLE_PREFIXES = ["New session - ", "Child session - "];
+
 type ModelRef = { providerID: string; modelID: string };
+type SessionClientWithGet = {
+  get?: (args: { path: { id: string } }) => Promise<{ data?: { title?: string } }>;
+};
 type ProvidersConfigPayload = {
   providers: Array<{ id: string; models: Record<string, unknown> }>;
   default: Record<string, string>;
@@ -29,13 +35,13 @@ let providersConfigPromise: Promise<ProvidersConfigPayload | null> | null = null
 function formatDate(format: string): string {
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, "0");
-  
+
   const year = now.getFullYear();
   const month = pad(now.getMonth() + 1);
   const day = pad(now.getDate());
   const hours = pad(now.getHours());
   const minutes = pad(now.getMinutes());
-  
+
   return format
     .replace("YYYY", year.toString())
     .replace("YY", year.toString().slice(-2))
@@ -43,6 +49,15 @@ function formatDate(format: string): string {
     .replace("DD", day)
     .replace("HH", hours)
     .replace("mm", minutes);
+}
+
+function isDefaultTitle(title: string | null | undefined): boolean {
+  if (!title || !title.trim()) {
+    return true;
+  }
+
+  const trimmed = title.trim();
+  return DEFAULT_TITLE_PREFIXES.some((prefix) => trimmed.startsWith(prefix));
 }
 
 function parseModelString(modelStr: string): { providerID: string; modelID: string } {
@@ -291,6 +306,26 @@ const plugin: Plugin = async (ctx) => {
       if (renamedSessions.has(sessionID)) {
         log(config, "Session already renamed, skipping:", sessionID);
         return;
+      }
+
+      if (lockedSessions.has(sessionID)) {
+        log(config, "Session title locked, skipping:", sessionID);
+        return;
+      }
+
+      const sessionClient = ctx.client.session as SessionClientWithGet;
+      if (sessionClient.get) {
+        try {
+          const sessionInfo = await sessionClient.get({ path: { id: sessionID } });
+          const existingTitle = sessionInfo?.data?.title;
+          if (!isDefaultTitle(existingTitle)) {
+            lockedSessions.add(sessionID);
+            log(config, "Session already titled, skipping:", sessionID);
+            return;
+          }
+        } catch (error) {
+          log(config, "Failed to read session title:", error);
+        }
       }
 
       let userMessage: string | null = null;

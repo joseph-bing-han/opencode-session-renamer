@@ -1,6 +1,6 @@
 {
   "name": "opencode-session-renamer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Auto-rename opencode sessions based on conversation content",
   "type": "module",
   "main": "dist/index.js",
